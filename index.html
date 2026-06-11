@@ -510,29 +510,39 @@
       if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
 
       try {
-        // Single request first — upcoming with enough results
-        const upRes = await fetch('https://ll.thespacedevs.com/2.0.0/launch/upcoming/?limit=15&mode=detailed&ordering=net');
+        const LL2_UP   = 'https://ll.thespacedevs.com/2.0.0/launch/upcoming/?limit=15&mode=detailed&ordering=net';
+        const LL2_PREV = 'https://ll.thespacedevs.com/2.0.0/launch/previous/?limit=1&mode=detailed&ordering=-net';
+        const PROXY    = url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
 
-        if (upRes.status === 429) {
-          const retry = upRes.headers.get('Retry-After') || 60;
-          content.innerHTML = `
-            <div class="state-box">
-              <i class="ti ti-clock" aria-hidden="true"></i>
-              <p>API rate limit reached.</p>
-              <small>Retrying in ${retry}s — launch data refreshes every 30 min.</small>
-            </div>`;
-          setTimeout(() => loadLaunches(true), parseInt(retry) * 1000);
-          return;
+        // Try direct first, fall back to proxy (needed inside Dakboard iframes)
+        async function fetchLL2(url) {
+          for (const target of [url, PROXY(url)]) {
+            try {
+              const r = await fetch(target);
+              if (r.status === 429) {
+                const retry = r.headers.get('Retry-After') || 60;
+                content.innerHTML = `
+                  <div class="state-box">
+                    <i class="ti ti-clock" aria-hidden="true"></i>
+                    <p>API rate limit reached.</p>
+                    <small>Retrying in ${retry}s — data refreshes every 30 min.</small>
+                  </div>`;
+                setTimeout(() => loadLaunches(true), parseInt(retry) * 1000);
+                return null;
+              }
+              if (r.ok) return await r.json();
+            } catch(e) {}
+          }
+          throw new Error('All sources blocked or unavailable');
         }
-        if (!upRes.ok) throw new Error(`HTTP ${upRes.status}`);
 
-        const upData = await upRes.json();
+        const upData = await fetchLL2(LL2_UP);
+        if (!upData) return;
 
-        // Try previous endpoint separately — if it 429s, skip it gracefully
         let prevData = { results: [] };
         try {
-          const prevRes = await fetch('https://ll.thespacedevs.com/2.0.0/launch/previous/?limit=1&mode=detailed&ordering=-net');
-          if (prevRes.ok) prevData = await prevRes.json();
+          const pd = await fetchLL2(LL2_PREV);
+          if (pd) prevData = pd;
         } catch(e) {}
 
         // Cache the results
