@@ -7,694 +7,341 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #0d0d12;
-      --bg-card: #13131a;
-      --bg-card2: #1a1a24;
-      --border: rgba(255,255,255,0.08);
-      --border-hover: rgba(255,255,255,0.14);
-      --text-primary: #f0f0f5;
-      --text-secondary: #888899;
-      --text-tertiary: #555566;
-      --accent: #4f8ef7;
-      --accent-dim: rgba(79,142,247,0.15);
-      --go: #3ecf8e;
-      --go-dim: rgba(62,207,142,0.12);
-      --tbd: #f7b84f;
-      --tbd-dim: rgba(247,184,79,0.12);
-      --hold: #f75f5f;
-      --hold-dim: rgba(247,95,95,0.12);
-      --font: 'Inter', system-ui, -apple-system, sans-serif;
-      --radius: 10px;
-      --radius-lg: 14px;
+      --bg: #0d0d12; --bg-card: #13131a; --bg-card2: #1a1a24;
+      --border: rgba(255,255,255,0.08); --border-hover: rgba(255,255,255,0.14);
+      --text-primary: #f0f0f5; --text-secondary: #888899; --text-tertiary: #454558;
+      --accent: #4f8ef7; --accent-dim: rgba(79,142,247,0.15);
+      --go: #3ecf8e; --go-dim: rgba(62,207,142,0.12);
+      --tbd: #f7b84f; --tbd-dim: rgba(247,184,79,0.12);
+      --hold: #f75f5f; --hold-dim: rgba(247,95,95,0.12);
+      --font: 'Inter', system-ui, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+      --radius: 10px; --radius-lg: 14px;
     }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap');
+    html, body { height: 100%; background: var(--bg); color: var(--text-primary); font-family: var(--font); font-size: 17px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    body { padding: 20px; overflow-x: hidden; }
 
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
-
-    html, body {
-      height: 100%;
-      background: var(--bg);
-      color: var(--text-primary);
-      font-family: var(--font);
-      font-size: 17px;
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    body {
-      padding: 20px;
-      overflow-x: hidden;
-    }
-
-    /* ---- Header ---- */
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .header-icon {
-      font-size: 20px;
-      color: var(--accent);
-    }
-    .header-title {
-      font-size: 22px;
-      font-weight: 600;
-      color: var(--text-primary);
-      letter-spacing: -0.01em;
-    }
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .updated {
-      font-size: 12px;
-      color: var(--text-tertiary);
-    }
-    .refresh-btn {
-      background: none;
-      border: 0.5px solid var(--border-hover);
-      border-radius: var(--radius);
-      padding: 5px 10px;
-      font-size: 12px;
-      color: var(--text-secondary);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-family: var(--font);
-      transition: background 0.15s, color 0.15s;
-    }
-    .refresh-btn:hover {
-      background: var(--bg-card2);
-      color: var(--text-primary);
-    }
+    .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .header-icon { font-size: 20px; color: var(--accent); }
+    .header-title { font-size: 22px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.01em; }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .updated { font-size: 12px; color: var(--text-tertiary); }
+    .refresh-btn { background: none; border: 0.5px solid var(--border-hover); border-radius: var(--radius); padding: 5px 10px; font-size: 12px; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 5px; font-family: var(--font); transition: background 0.15s, color 0.15s; }
+    .refresh-btn:hover { background: var(--bg-card2); color: var(--text-primary); }
     .refresh-btn i { font-size: 13px; }
 
-    /* ---- Next launch card ---- */
-    .next-card {
-      background: var(--bg-card);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 20px;
-      margin-bottom: 14px;
-      position: relative;
-    }
-    .next-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-      background: var(--accent);
-      opacity: 0.7;
-    }
-    .next-eyebrow {
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
-    .next-name {
-      font-size: 24px;
-      font-weight: 600;
-      color: var(--text-primary);
-      line-height: 1.3;
-      margin-bottom: 3px;
-      letter-spacing: -0.01em;
-    }
-    .next-sub {
-      font-size: 16px;
-      color: var(--text-secondary);
-      margin-bottom: 18px;
-    }
+    /* Next card */
+    .next-card { background: var(--bg-card); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 14px; position: relative; }
+    .next-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; background: var(--accent); opacity: 0.7; }
+    .next-eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+    .next-name { font-size: 24px; font-weight: 600; color: var(--text-primary); line-height: 1.3; margin-bottom: 3px; letter-spacing: -0.01em; }
+    .next-sub { font-size: 16px; color: var(--text-secondary); margin-bottom: 18px; }
 
     /* Countdown */
-    .countdown {
-      display: flex;
-      gap: 0;
-      margin-bottom: 16px;
-      align-items: flex-start;
-    }
-    .cd-unit {
-      text-align: center;
-      min-width: 68px;
-    }
-    .cd-num {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 44px;
-      font-weight: 600;
-      color: var(--text-primary);
-      line-height: 1;
-      letter-spacing: -0.02em;
-    }
-    .cd-label {
-      font-size: 13px;
-      color: var(--text-tertiary);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-top: 3px;
-    }
-    .cd-colon {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 36px;
-      font-weight: 400;
-      color: var(--text-tertiary);
-      padding: 0 2px;
-      line-height: 1;
-      margin-top: 1px;
-    }
+    .countdown { display: flex; gap: 0; margin-bottom: 16px; align-items: flex-start; }
+    .cd-unit { text-align: center; min-width: 68px; }
+    .cd-num { font-family: var(--mono); font-size: 44px; font-weight: 600; color: var(--text-primary); line-height: 1; letter-spacing: -0.02em; }
+    .cd-label { font-size: 13px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 3px; }
+    .cd-colon { font-family: var(--mono); font-size: 36px; font-weight: 400; color: var(--text-tertiary); padding: 0 2px; line-height: 1; margin-top: 1px; }
 
-    /* Meta tags */
-    .meta-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .meta-chip {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 14px;
-      color: var(--text-secondary);
-      background: var(--bg-card2);
-      border: 0.5px solid var(--border);
-      border-radius: 20px;
-      padding: 3px 10px;
-    }
+    /* Meta chips */
+    .meta-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .meta-chip { display: flex; align-items: center; gap: 5px; font-size: 14px; color: var(--text-secondary); background: var(--bg-card2); border: 0.5px solid var(--border); border-radius: 20px; padding: 3px 10px; }
     .meta-chip i { font-size: 15px; }
+    .status-pip { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .pip-go      { background: var(--go); box-shadow: 0 0 5px var(--go); }
+    .pip-tbd     { background: var(--tbd); }
+    .pip-hold    { background: var(--hold); }
+    .pip-success { background: var(--go); box-shadow: 0 0 5px var(--go); }
+    .pip-tgo     { background: var(--text-tertiary); }
 
-    /* Status indicator */
-    .status-pip {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .pip-go    { background: var(--go); box-shadow: 0 0 5px var(--go); }
-    .pip-tbd   { background: var(--tbd); }
-    .pip-hold  { background: var(--hold); }
-    .pip-tgo   { background: var(--text-tertiary); }
-
-    /* ---- Section label ---- */
-    .section-label {
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text-tertiary);
-      margin-bottom: 8px;
-    }
-
-    /* ---- Launch list ---- */
-    .launch-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .launch-row {
-      background: var(--bg-card);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: 11px 14px;
-      display: grid;
-      grid-template-columns: 44px 1fr auto;
-      align-items: center;
-      gap: 12px;
-      transition: border-color 0.15s;
-    }
-    .launch-row:hover {
-      border-color: var(--border-hover);
-    }
-    .date-col { text-align: center; }
-    .date-day {
-      font-size: 24px;
-      font-weight: 600;
-      color: var(--text-primary);
-      line-height: 1;
-      font-variant-numeric: tabular-nums;
-    }
-    .date-mon {
-      font-size: 13px;
-      color: var(--text-tertiary);
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-    }
-    .row-divider {
-      width: 0.5px;
-      height: 32px;
-      background: var(--border);
-      flex-shrink: 0;
-    }
-    .row-name {
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--text-primary);
-      line-height: 1.4;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .row-sub {
-      font-size: 13px;
-      color: var(--text-tertiary);
-      margin-top: 1px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .row-right { text-align: right; flex-shrink: 0; }
-    .row-time {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 13px;
-      color: var(--text-secondary);
-    }
-    .badge {
-      display: inline-block;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 20px;
-      margin-top: 3px;
-      letter-spacing: 0.03em;
-    }
-    .badge-go   { background: var(--go-dim);   color: var(--go); }
-    .badge-tbd  { background: var(--tbd-dim);  color: var(--tbd); }
-    .badge-hold { background: var(--hold-dim); color: var(--hold); }
-    .badge-tgo  { background: var(--bg-card2); color: var(--text-tertiary); }
-    .badge-success { background: var(--go-dim); color: var(--go); }
-
-    /* ---- Mission description ---- */
-    .mission-desc {
-      font-size: 14px;
-      color: var(--text-secondary);
-      line-height: 1.6;
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 0.5px solid var(--border);
-    }
-
-    /* ---- Detail grid (orbit, type) ---- */
-    .detail-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
-    }
-    .detail-pill {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 13px;
-      color: var(--text-secondary);
-      background: var(--bg-card2);
-      border: 0.5px solid var(--border);
-      border-radius: 20px;
-      padding: 3px 10px;
-    }
+    /* Detail pills */
+    .detail-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .detail-pill { display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--text-secondary); background: var(--bg-card2); border: 0.5px solid var(--border); border-radius: 20px; padding: 3px 10px; }
     .detail-pill i { font-size: 14px; }
     .detail-pill strong { color: var(--text-primary); font-weight: 500; }
 
-    /* ---- Previous launch card ---- */
-    .prev-card {
-      background: var(--bg-card);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 20px;
-      margin-bottom: 14px;
-      position: relative;
-    }
-    .prev-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-      background: var(--go);
-      opacity: 0.5;
-    }
-    .prev-eyebrow {
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--go);
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .prev-name {
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--text-primary);
-      line-height: 1.3;
-      margin-bottom: 3px;
-      letter-spacing: -0.01em;
-    }
-    .prev-sub {
-      font-size: 15px;
-      color: var(--text-secondary);
-      margin-bottom: 10px;
-    }
-    .prev-when {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 13px;
-      color: var(--text-tertiary);
-      margin-bottom: 2px;
-    }
+    /* Mission description */
+    .mission-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-top: 12px; padding-top: 12px; border-top: 0.5px solid var(--border); }
 
-    /* ---- States ---- */
-    .state-box {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--text-secondary);
-    }
+    /* Previous card */
+    .prev-card { background: var(--bg-card); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 14px; position: relative; }
+    .prev-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; background: var(--go); opacity: 0.5; }
+    .prev-eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--go); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; opacity: 0.85; }
+    .prev-name { font-size: 20px; font-weight: 600; color: var(--text-primary); line-height: 1.3; margin-bottom: 3px; letter-spacing: -0.01em; }
+    .prev-sub  { font-size: 15px; color: var(--text-secondary); margin-bottom: 4px; }
+    .prev-when { font-family: var(--mono); font-size: 13px; color: var(--text-tertiary); margin-bottom: 10px; }
+
+    /* Section label */
+    .section-label { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 8px; }
+
+    /* Launch list rows */
+    .launch-list { display: flex; flex-direction: column; gap: 6px; }
+    .launch-row { background: var(--bg-card); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 11px 14px; display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 12px; transition: border-color 0.15s; }
+    .launch-row:hover { border-color: var(--border-hover); }
+    .date-col { text-align: center; }
+    .date-day { font-size: 24px; font-weight: 600; color: var(--text-primary); line-height: 1; font-variant-numeric: tabular-nums; }
+    .date-mon { font-size: 13px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.07em; }
+    .row-name { font-size: 16px; font-weight: 500; color: var(--text-primary); line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .row-sub  { font-size: 13px; color: var(--text-tertiary); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .row-right { text-align: right; flex-shrink: 0; }
+    .row-time { font-family: var(--mono); font-size: 13px; color: var(--text-secondary); }
+    .badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 20px; margin-top: 3px; letter-spacing: 0.03em; }
+    .badge-go      { background: var(--go-dim);   color: var(--go); }
+    .badge-tbd     { background: var(--tbd-dim);  color: var(--tbd); }
+    .badge-hold    { background: var(--hold-dim); color: var(--hold); }
+    .badge-success { background: var(--go-dim);   color: var(--go); }
+    .badge-tgo     { background: var(--bg-card2); color: var(--text-tertiary); }
+
+    /* States */
+    .state-box { text-align: center; padding: 40px 20px; color: var(--text-secondary); }
     .state-box i { font-size: 28px; margin-bottom: 10px; display: block; }
-    .state-box p { font-size: 13px; }
-    .state-box small { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; display: block; }
+    .state-box p { font-size: 15px; }
+    .state-box small { font-size: 12px; color: var(--text-tertiary); margin-top: 4px; display: block; }
 
-    /* ---- Spin animation for loading ---- */
     @keyframes spin { to { transform: rotate(360deg); } }
     .spin { display: inline-block; animation: spin 1s linear infinite; }
-
-    /* ---- Scrollbar ---- */
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 2px; }
   </style>
 </head>
 <body>
-
-  <div id="app">
-    <div class="header">
-      <div class="header-left">
-        <i class="ti ti-rocket header-icon" aria-hidden="true"></i>
-        <span class="header-title">Rocket launches</span>
-      </div>
-      <div class="header-right">
-        <span class="updated" id="updated-time"></span>
-        <button class="refresh-btn" onclick="loadLaunches()" aria-label="Refresh launch data">
-          <i class="ti ti-refresh" aria-hidden="true"></i> Refresh
-        </button>
-      </div>
+  <div class="header">
+    <div class="header-left">
+      <i class="ti ti-rocket header-icon" aria-hidden="true"></i>
+      <span class="header-title">Rocket launches</span>
     </div>
-    <div id="content">
-      <div class="state-box">
-        <i class="ti ti-loader spin" aria-hidden="true"></i>
-        <p>Loading launches…</p>
-      </div>
+    <div class="header-right">
+      <span class="updated" id="updated-time"></span>
+      <button class="refresh-btn" onclick="loadLaunches(true)" aria-label="Refresh">
+        <i class="ti ti-refresh" aria-hidden="true"></i> Refresh
+      </button>
     </div>
   </div>
+  <div id="content">
+    <div class="state-box"><i class="ti ti-loader spin"></i><p>Loading launches…</p></div>
+  </div>
 
-  <script>
-    const STATUS_MAP = {
-      1: { label: 'Go',             cls: 'go'      },
-      2: { label: 'TBD',            cls: 'tbd'     },
-      3: { label: 'Success',        cls: 'success' },
-      4: { label: 'Failure',        cls: 'hold'    },
-      5: { label: 'Hold',           cls: 'hold'    },
-      6: { label: 'In flight',      cls: 'go'      },
-      7: { label: 'Partial failure',cls: 'hold'    },
-      8: { label: 'TBC',            cls: 'tbd'     }
+<script>
+  function esc(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function pad2(n) { return String(n).padStart(2,'0'); }
+  function formatDate(iso) {
+    const d = new Date(iso);
+    return {
+      day:  d.getUTCDate(),
+      mon:  d.toLocaleString('en-US',{month:'short',timeZone:'UTC'}),
+      time: d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'UTC',hour12:false})+' UTC',
+      full: d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric',timeZone:'UTC'})
     };
+  }
+  function timeAgo(iso) {
+    const days = Math.floor((Date.now()-new Date(iso))/86400000);
+    if (days===0) return 'Today';
+    if (days===1) return 'Yesterday';
+    if (days<30)  return days+'d ago';
+    return Math.floor(days/30)+'mo ago';
+  }
 
-    let countdownInterval = null;
-    let nextLaunchMs = null;
+  // RocketLaunch.Live result field: -1=upcoming, 1=success, 0=failure, 2=partial, 3=inflight
+  function rlStatus(l) {
+    if (l.result===1)  return {label:'Success',   cls:'success'};
+    if (l.result===0)  return {label:'Failure',   cls:'hold'};
+    if (l.result===2)  return {label:'Partial',   cls:'hold'};
+    if (l.result===3)  return {label:'In flight', cls:'go'};
+    if (l.t0||l.win_open) return {label:'Scheduled',cls:'go'};
+    return                    {label:'TBD',        cls:'tbd'};
+  }
 
-    function pad(n) { return String(n).padStart(2, '0'); }
+  function buildPills(l) {
+    const pills = [];
+    const loc = l.pad?.location;
+    const site = [loc?.name, loc?.statename, loc?.country].filter(Boolean).join(', ');
+    const tags = (l.tags||[]).map(t=>t.text).filter(t=>t!=='Suborbital').slice(0,2);
+    if (site) pills.push(`<div class="detail-pill"><i class="ti ti-map-pin"></i>${esc(site)}</div>`);
+    tags.forEach(t=>pills.push(`<div class="detail-pill"><i class="ti ti-tag"></i>${esc(t)}</div>`));
+    return pills.length ? `<div class="detail-grid">${pills.join('')}</div>` : '';
+  }
 
-    function updateCountdown() {
-      if (!nextLaunchMs) return;
-      const diff = nextLaunchMs - Date.now();
-      const safe = Math.max(diff, 0);
-      const days = Math.floor(safe / 86400000);
-      const hrs  = Math.floor((safe % 86400000) / 3600000);
-      const min  = Math.floor((safe % 3600000) / 60000);
-      const sec  = Math.floor((safe % 60000) / 1000);
-      const get  = id => document.getElementById(id);
-      if (get('cd-days')) get('cd-days').textContent = pad(days);
-      if (get('cd-hrs'))  get('cd-hrs').textContent  = pad(hrs);
-      if (get('cd-min'))  get('cd-min').textContent  = pad(min);
-      if (get('cd-sec'))  get('cd-sec').textContent  = pad(sec);
-    }
+  let cdInterval = null, nextMs = null;
+  function updateCountdown() {
+    if (!nextMs) return;
+    const diff = Math.max(nextMs-Date.now(),0);
+    const d=Math.floor(diff/86400000), h=Math.floor(diff%86400000/3600000),
+          m=Math.floor(diff%3600000/60000), s=Math.floor(diff%60000/1000);
+    const g=id=>document.getElementById(id);
+    if(g('cd-days')) g('cd-days').textContent=pad2(d);
+    if(g('cd-hrs'))  g('cd-hrs').textContent=pad2(h);
+    if(g('cd-min'))  g('cd-min').textContent=pad2(m);
+    if(g('cd-sec'))  g('cd-sec').textContent=pad2(s);
+  }
 
-    function formatDate(isoStr) {
-      const d = new Date(isoStr);
-      return {
-        day:  d.getUTCDate(),
-        mon:  d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' }),
-        time: d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC', hour12: false }) + ' UTC',
-        full: d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
-      };
-    }
+  const RLL = 'https://fdo.rocketlaunch.live/json/launches/next/5';
+  const PROXY = u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u);
+  const CACHE_KEY = 'rll_v2';
+  const CACHE_TTL = 10*60*1000;
 
-    function timeAgo(isoStr) {
-      const diff = Date.now() - new Date(isoStr).getTime();
-      const days = Math.floor(diff / 86400000);
-      if (days === 0) return 'Today';
-      if (days === 1) return 'Yesterday';
-      if (days < 30)  return `${days} days ago`;
-      const months = Math.floor(days / 30);
-      return months === 1 ? '1 month ago' : `${months} months ago`;
-    }
-
-    function esc(str) {
-      return String(str || '')
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;');
-    }
-
-    function buildDetailPills(launch) {
-      const orbit   = launch.mission?.orbit?.name;
-      const type    = launch.mission?.type;
-      const pad     = launch.pad?.location?.name || launch.pad?.name;
-      const country = launch.pad?.location?.country_code;
-      const reused  = launch.rocket?.spacecraft_stage?.landing?.attempt;
-      const pills   = [];
-      if (pad)   pills.push(`<div class="detail-pill"><i class="ti ti-map-pin" aria-hidden="true"></i>${esc(pad)}</div>`);
-      if (orbit) pills.push(`<div class="detail-pill"><i class="ti ti-circle-dashed" aria-hidden="true"></i><strong>Orbit:</strong> ${esc(orbit)}</div>`);
-      if (type)  pills.push(`<div class="detail-pill"><i class="ti ti-tag" aria-hidden="true"></i>${esc(type)}</div>`);
-      return pills.length ? `<div class="detail-grid">${pills.join('')}</div>` : '';
-    }
-
-    async function loadLaunches(forceRefresh = false) {
-      const content = document.getElementById('content');
-      const CACHE_KEY = 'll2_launches';
-      const CACHE_TTL = 55 * 60 * 1000; // 55 min — LL2 free tier: 15 req/hour
-
-      // Use sessionStorage cache to avoid hammering the API on every page load
-      if (!forceRefresh) {
-        try {
-          const cached = localStorage.getItem(CACHE_KEY);
-          if (cached) {
-            const { ts, upData, prevData } = JSON.parse(cached);
-            if (Date.now() - ts < CACHE_TTL) {
-              renderLaunches(upData, prevData);
-              return;
-            }
-          }
-        } catch(e) {}
-      }
-
-      content.innerHTML = `<div class="state-box"><i class="ti ti-loader spin" aria-hidden="true"></i><p>Loading launches…</p></div>`;
-      if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
-
+  async function fetchData() {
+    for (const url of [RLL, PROXY(RLL)]) {
       try {
-        const LL2_UP   = 'https://ll.thespacedevs.com/2.0.0/launch/upcoming/?limit=15&mode=detailed&ordering=net';
-        const LL2_PREV = 'https://ll.thespacedevs.com/2.0.0/launch/previous/?limit=1&mode=detailed&ordering=-net';
-        const PROXY    = url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+        const r = await fetch(url);
+        if (r.ok) return await r.json();
+      } catch(e) {}
+    }
+    throw new Error('All sources unreachable');
+  }
 
-        // Try direct first, fall back to proxy (needed inside Dakboard iframes)
-        async function fetchLL2(url) {
-          for (const target of [url, PROXY(url)]) {
-            try {
-              const r = await fetch(target);
-              if (r.status === 429) {
-                const retry = r.headers.get('Retry-After') || 60;
-                // Show cached data if available while waiting
-                try {
-                  const cached = localStorage.getItem(CACHE_KEY);
-                  if (cached) {
-                    const { ts, upData, prevData } = JSON.parse(cached);
-                    renderLaunches(upData, prevData);
-                    const age = Math.round((Date.now() - ts) / 60000);
-                    document.getElementById('updated-time').textContent = `Cached ${age}m ago · retrying…`;
-                    setTimeout(() => loadLaunches(true), parseInt(retry) * 1000);
-                    return null;
-                  }
-                } catch(e) {}
-                content.innerHTML = `
-                  <div class="state-box">
-                    <i class="ti ti-clock" aria-hidden="true"></i>
-                    <p>API rate limit reached.</p>
-                    <small>Retrying in ${retry}s — data refreshes every 55 min.</small>
-                  </div>`;
-                setTimeout(() => loadLaunches(true), parseInt(retry) * 1000);
-                return null;
-              }
-              if (r.ok) return await r.json();
-            } catch(e) {}
-          }
-          throw new Error('All sources blocked or unavailable');
-        }
+  async function loadLaunches(force=false) {
+    const el = document.getElementById('content');
 
-        const upData = await fetchLL2(LL2_UP);
-        if (!upData) return;
-
-        let prevData = { results: [] };
-        try {
-          const pd = await fetchLL2(LL2_PREV);
-          if (pd) prevData = pd;
-        } catch(e) {}
-
-        // Cache the results
-        try {
-          localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), upData, prevData }));
-        } catch(e) {}
-
-        renderLaunches(upData, prevData);
-
-      } catch (err) {
-        content.innerHTML = `
-          <div class="state-box">
-            <i class="ti ti-wifi-off" aria-hidden="true"></i>
-            <p>Could not load launch data.</p>
-            <small>${esc(err.message)}</small>
-            <br>
-            <button class="refresh-btn" onclick="loadLaunches(true)" style="margin: 10px auto 0">
-              <i class="ti ti-refresh" aria-hidden="true"></i> Retry
-            </button>
-          </div>`;
-      }
+    if (!force) {
+      try {
+        const c = JSON.parse(localStorage.getItem(CACHE_KEY)||'null');
+        if (c && Date.now()-c.ts < CACHE_TTL) { render(c.data); return; }
+      } catch(e) {}
     }
 
-    function renderLaunches(upData, prevData) {
-      const content = document.getElementById('content');
-      if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+    el.innerHTML = '<div class="state-box"><i class="ti ti-loader spin"></i><p>Loading launches…</p></div>';
+    if (cdInterval) { clearInterval(cdInterval); cdInterval=null; }
 
-      const now = Date.now();
-      const all = upData.results || [];
-
-      const TERMINAL = new Set([3, 4, 7]);
-      const future   = all.filter(l => new Date(l.net).getTime() > now || !TERMINAL.has(l.status?.id));
-      const pastInUp = all.filter(l => new Date(l.net).getTime() <= now && TERMINAL.has(l.status?.id));
-
-      const prevList = (prevData.results || []).length ? prevData.results : pastInUp.slice(-1);
-      const launches = future;
-
-      if (!launches.length) {
-        content.innerHTML = `<div class="state-box"><i class="ti ti-calendar-off" aria-hidden="true"></i><p>No upcoming launches found.</p></div>`;
-        return;
-      }
-
-      const first = launches[0];
-      const rest  = launches.slice(1);
-      const prev  = prevList[0] || null;
-      const s0    = STATUS_MAP[first.status?.id] || { label: first.status?.name || 'TBD', cls: 'tgo' };
-
-      nextLaunchMs = new Date(first.net).getTime();
-
-      const agency  = esc(first.launch_service_provider?.name || '');
-      const rocket  = esc(first.rocket?.configuration?.name   || '');
-      const mission = esc(first.mission?.name || '');
-      const desc    = esc(first.mission?.description || '');
-
-        // ── Next launch card ──
-        let html = `
-          <div class="next-card" role="region" aria-label="Next launch">
-            <div class="next-eyebrow">Next launch</div>
-            <div class="next-name">${esc(first.name)}</div>
-            <div class="next-sub">${[agency, rocket].filter(Boolean).join(' · ')}</div>
-            <div class="countdown" role="timer" aria-label="Countdown to launch">
-              <div class="cd-unit"><div class="cd-num" id="cd-days">--</div><div class="cd-label">days</div></div>
-              <div class="cd-colon">:</div>
-              <div class="cd-unit"><div class="cd-num" id="cd-hrs">--</div><div class="cd-label">hrs</div></div>
-              <div class="cd-colon">:</div>
-              <div class="cd-unit"><div class="cd-num" id="cd-min">--</div><div class="cd-label">min</div></div>
-              <div class="cd-colon">:</div>
-              <div class="cd-unit"><div class="cd-num" id="cd-sec">--</div><div class="cd-label">sec</div></div>
-            </div>
-            <div class="meta-row">
-              <div class="meta-chip"><span class="status-pip pip-${s0.cls}" aria-hidden="true"></span>${s0.label}</div>
-              ${mission ? `<div class="meta-chip"><i class="ti ti-satellite" aria-hidden="true"></i>${mission}</div>` : ''}
-            </div>
-            ${buildDetailPills(first)}
-            ${desc ? `<div class="mission-desc">${desc}</div>` : ''}
-          </div>`;
-
-        // ── Previous launch card ──
-        if (prev) {
-          const ps   = STATUS_MAP[prev.status?.id] || { label: prev.status?.name || '—', cls: 'tgo' };
-          const pag  = esc(prev.launch_service_provider?.name || '');
-          const prk  = esc(prev.rocket?.configuration?.name   || '');
-          const pdt  = formatDate(prev.net);
-          const pdsc = esc(prev.mission?.description || '');
-          html += `
-          <div class="prev-card" role="region" aria-label="Previous launch">
-            <div class="prev-eyebrow">
-              <i class="ti ti-clock-check" aria-hidden="true"></i>
-              Previous launch · ${timeAgo(prev.net)}
-            </div>
-            <div class="prev-name">${esc(prev.name)}</div>
-            <div class="prev-sub">${[pag, prk].filter(Boolean).join(' · ')}</div>
-            <div class="prev-when">${pdt.full}</div>
-            <div class="meta-row" style="margin-top:10px">
-              <div class="meta-chip"><span class="status-pip pip-${ps.cls}" aria-hidden="true"></span>${ps.label}</div>
-              ${prev.mission?.name ? `<div class="meta-chip"><i class="ti ti-satellite" aria-hidden="true"></i>${esc(prev.mission.name)}</div>` : ''}
-            </div>
-            ${buildDetailPills(prev)}
-            ${pdsc ? `<div class="mission-desc">${pdsc}</div>` : ''}
-          </div>`;
+    try {
+      const data = await fetchData();
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify({ts:Date.now(), data})); } catch(e) {}
+      render(data);
+    } catch(err) {
+      // Show stale cache if available
+      try {
+        const c = JSON.parse(localStorage.getItem(CACHE_KEY)||'null');
+        if (c) {
+          render(c.data);
+          document.getElementById('updated-time').textContent = 'Cached '+Math.round((Date.now()-c.ts)/60000)+'m ago';
+          return;
         }
+      } catch(e) {}
+      el.innerHTML = `<div class="state-box"><i class="ti ti-wifi-off"></i><p>Could not load launch data.</p><small>${esc(err.message)}</small><br><button class="refresh-btn" onclick="loadLaunches(true)" style="margin:10px auto 0"><i class="ti ti-refresh"></i> Retry</button></div>`;
+    }
+  }
 
-        // ── Upcoming list ──
-        if (rest.length) {
-          html += `<div class="section-label">Upcoming</div><div class="launch-list">`;
-          rest.forEach(l => {
-            const dt  = formatDate(l.net);
-            const st  = STATUS_MAP[l.status?.id] || { label: 'TBD', cls: 'tgo' };
-            const ag  = esc(l.launch_service_provider?.name || '');
-            const rk  = esc(l.rocket?.configuration?.name   || '');
-            const tbd = l.tbdtime;
-            html += `
-              <div class="launch-row">
-                <div class="date-col">
-                  <div class="date-day">${dt.day}</div>
-                  <div class="date-mon">${dt.mon}</div>
-                </div>
-                <div style="min-width:0">
-                  <div class="row-name">${esc(l.name)}</div>
-                  <div class="row-sub">${[ag, rk].filter(Boolean).join(' · ')}</div>
-                </div>
-                <div class="row-right">
-                  <div class="row-time">${tbd ? 'NET' : dt.time}</div>
-                  <div class="badge badge-${st.cls}">${st.label}</div>
-                </div>
-              </div>`;
-          });
-          html += `</div>`;
-        }
+  function render(data) {
+    const el = document.getElementById('content');
+    if (cdInterval) { clearInterval(cdInterval); cdInterval=null; }
 
-        content.innerHTML = html;
-        updateCountdown();
-        countdownInterval = setInterval(updateCountdown, 1000);
+    const results = data.result || [];
+    const upcoming = results.filter(l=>l.result===-1||l.result===3);
+    const past     = results.filter(l=>l.result!==- 1&&l.result!==3);
 
-        document.getElementById('updated-time').textContent =
-          'Updated ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    if (!upcoming.length && !past.length) {
+      el.innerHTML='<div class="state-box"><i class="ti ti-calendar-off"></i><p>No launch data found.</p></div>';
+      return;
     }
 
-    loadLaunches();
-    setInterval(loadLaunches, 55 * 60 * 1000); // 55 min — matches cache TTL
-  </script>
+    const first = upcoming[0]||null;
+    const rest  = upcoming.slice(1);
+    const prev  = past[0]||null;
+
+    if (first) {
+      const t0 = first.t0||first.win_open;
+      nextMs = t0 ? new Date(t0).getTime() : null;
+    }
+
+    let html = '';
+
+    // ── Next launch ──
+    if (first) {
+      const st  = rlStatus(first);
+      const t0  = first.t0||first.win_open;
+      const tbd = !first.t0;
+      const ag  = esc(first.provider?.name||'');
+      const rk  = esc(first.vehicle?.name||'');
+      const mis = esc(first.missions?.[0]?.name||'');
+      const dsc = esc(first.launch_description||first.missions?.[0]?.description||'');
+      html += `<div class="next-card">
+        <div class="next-eyebrow">Next launch</div>
+        <div class="next-name">${esc(first.name)}</div>
+        <div class="next-sub">${[ag,rk].filter(Boolean).join(' · ')}</div>
+        <div class="countdown">
+          <div class="cd-unit"><div class="cd-num" id="cd-days">--</div><div class="cd-label">days</div></div>
+          <div class="cd-colon">:</div>
+          <div class="cd-unit"><div class="cd-num" id="cd-hrs">--</div><div class="cd-label">hrs</div></div>
+          <div class="cd-colon">:</div>
+          <div class="cd-unit"><div class="cd-num" id="cd-min">--</div><div class="cd-label">min</div></div>
+          <div class="cd-colon">:</div>
+          <div class="cd-unit"><div class="cd-num" id="cd-sec">--</div><div class="cd-label">sec</div></div>
+        </div>
+        ${tbd?'<div style="font-size:13px;color:var(--text-tertiary);margin-bottom:10px">Exact time TBD</div>':''}
+        <div class="meta-row">
+          <div class="meta-chip"><span class="status-pip pip-${st.cls}"></span>${st.label}</div>
+          ${mis&&mis!==esc(first.name)?`<div class="meta-chip"><i class="ti ti-satellite"></i>${mis}</div>`:''}
+        </div>
+        ${buildPills(first)}
+        ${dsc?`<div class="mission-desc">${dsc}</div>`:''}
+      </div>`;
+    }
+
+    // ── Previous launch ──
+    if (prev) {
+      const st  = rlStatus(prev);
+      const t0  = prev.t0||prev.win_open;
+      const dt  = t0 ? formatDate(t0) : null;
+      const ag  = esc(prev.provider?.name||'');
+      const rk  = esc(prev.vehicle?.name||'');
+      const mis = esc(prev.missions?.[0]?.name||'');
+      const dsc = esc(prev.launch_description||prev.missions?.[0]?.description||'');
+      html += `<div class="prev-card">
+        <div class="prev-eyebrow"><i class="ti ti-clock-check"></i>Previous launch${t0?' · '+timeAgo(t0):''}</div>
+        <div class="prev-name">${esc(prev.name)}</div>
+        <div class="prev-sub">${[ag,rk].filter(Boolean).join(' · ')}</div>
+        ${dt?`<div class="prev-when">${dt.full}</div>`:''}
+        <div class="meta-row" style="margin-top:10px">
+          <div class="meta-chip"><span class="status-pip pip-${st.cls}"></span>${st.label}</div>
+          ${mis&&mis!==esc(prev.name)?`<div class="meta-chip"><i class="ti ti-satellite"></i>${mis}</div>`:''}
+        </div>
+        ${buildPills(prev)}
+        ${dsc?`<div class="mission-desc">${dsc}</div>`:''}
+      </div>`;
+    }
+
+    // ── Upcoming list ──
+    if (rest.length) {
+      html += '<div class="section-label">Upcoming</div><div class="launch-list">';
+      rest.forEach(l=>{
+        const t0 = l.t0||l.win_open;
+        const dt = t0 ? formatDate(t0) : null;
+        const st = rlStatus(l);
+        html += `<div class="launch-row">
+          <div class="date-col">
+            <div class="date-day">${dt?dt.day:'—'}</div>
+            <div class="date-mon">${dt?dt.mon:''}</div>
+          </div>
+          <div style="min-width:0">
+            <div class="row-name">${esc(l.name)}</div>
+            <div class="row-sub">${[esc(l.provider?.name||''),esc(l.vehicle?.name||'')].filter(Boolean).join(' · ')}</div>
+          </div>
+          <div class="row-right">
+            <div class="row-time">${l.t0?dt.time:'TBD'}</div>
+            <div class="badge badge-${st.cls}">${st.label}</div>
+          </div>
+        </div>`;
+      });
+      html += '</div>';
+    }
+
+    html += '<div style="font-size:11px;color:var(--text-tertiary);text-align:right;margin-top:8px">Data by RocketLaunch.Live</div>';
+
+    el.innerHTML = html;
+    updateCountdown();
+    cdInterval = setInterval(updateCountdown, 1000);
+    document.getElementById('updated-time').textContent =
+      'Updated '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  }
+
+  loadLaunches();
+  setInterval(()=>loadLaunches(true), 10*60*1000);
+</script>
 </body>
 </html>
