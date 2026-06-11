@@ -490,12 +490,12 @@
     async function loadLaunches(forceRefresh = false) {
       const content = document.getElementById('content');
       const CACHE_KEY = 'll2_launches';
-      const CACHE_TTL = 25 * 60 * 1000; // 25 min
+      const CACHE_TTL = 55 * 60 * 1000; // 55 min — LL2 free tier: 15 req/hour
 
       // Use sessionStorage cache to avoid hammering the API on every page load
       if (!forceRefresh) {
         try {
-          const cached = sessionStorage.getItem(CACHE_KEY);
+          const cached = localStorage.getItem(CACHE_KEY);
           if (cached) {
             const { ts, upData, prevData } = JSON.parse(cached);
             if (Date.now() - ts < CACHE_TTL) {
@@ -521,11 +521,23 @@
               const r = await fetch(target);
               if (r.status === 429) {
                 const retry = r.headers.get('Retry-After') || 60;
+                // Show cached data if available while waiting
+                try {
+                  const cached = localStorage.getItem(CACHE_KEY);
+                  if (cached) {
+                    const { ts, upData, prevData } = JSON.parse(cached);
+                    renderLaunches(upData, prevData);
+                    const age = Math.round((Date.now() - ts) / 60000);
+                    document.getElementById('updated-time').textContent = `Cached ${age}m ago · retrying…`;
+                    setTimeout(() => loadLaunches(true), parseInt(retry) * 1000);
+                    return null;
+                  }
+                } catch(e) {}
                 content.innerHTML = `
                   <div class="state-box">
                     <i class="ti ti-clock" aria-hidden="true"></i>
                     <p>API rate limit reached.</p>
-                    <small>Retrying in ${retry}s — data refreshes every 30 min.</small>
+                    <small>Retrying in ${retry}s — data refreshes every 55 min.</small>
                   </div>`;
                 setTimeout(() => loadLaunches(true), parseInt(retry) * 1000);
                 return null;
@@ -547,7 +559,7 @@
 
         // Cache the results
         try {
-          sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), upData, prevData }));
+          localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), upData, prevData }));
         } catch(e) {}
 
         renderLaunches(upData, prevData);
@@ -682,7 +694,7 @@
     }
 
     loadLaunches();
-    setInterval(loadLaunches, 30 * 60 * 1000); // 30 min — LL2 free tier is strict
+    setInterval(loadLaunches, 55 * 60 * 1000); // 55 min — matches cache TTL
   </script>
 </body>
 </html>
