@@ -493,19 +493,29 @@
       if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
 
       try {
-        // Fetch upcoming (detail mode) + previous in parallel
+        // Fetch a larger upcoming window so we can split past vs future,
+        // plus the previous endpoint for the most recent completed launch
         const [upRes, prevRes] = await Promise.all([
-          fetch('https://ll.thespacedevs.com/2.0.0/launch/upcoming/?limit=10&mode=detailed&ordering=net'),
+          fetch('https://ll.thespacedevs.com/2.0.0/launch/upcoming/?limit=15&mode=detailed&ordering=net'),
           fetch('https://ll.thespacedevs.com/2.0.0/launch/previous/?limit=1&mode=detailed&ordering=-net')
         ]);
         if (!upRes.ok)   throw new Error(`Upcoming HTTP ${upRes.status}`);
-        if (!prevRes.ok) throw new Error(`Previous HTTP ${prevRes.status}`);
 
         const upData   = await upRes.json();
-        const prevData = await prevRes.json();
+        const prevData = prevRes.ok ? await prevRes.json() : { results: [] };
 
-        const launches = upData.results   || [];
-        const prevList = prevData.results || [];
+        const now = Date.now();
+        const all = upData.results || [];
+
+        // Split: future = NET in the future OR status not yet terminal
+        // Past-in-upcoming = NET already passed AND status is Success/Failure
+        const TERMINAL = new Set([3, 4, 7]); // Success, Failure, Partial failure
+        const future = all.filter(l => new Date(l.net).getTime() > now || !TERMINAL.has(l.status?.id));
+        const pastInUp = all.filter(l => new Date(l.net).getTime() <= now && TERMINAL.has(l.status?.id));
+
+        // Use dedicated previous endpoint first, fall back to what slipped into upcoming
+        const prevList = (prevData.results || []).length ? prevData.results : pastInUp.slice(-1);
+        const launches = future;
 
         if (!launches.length) {
           content.innerHTML = `<div class="state-box"><i class="ti ti-calendar-off" aria-hidden="true"></i><p>No upcoming launches found.</p></div>`;
