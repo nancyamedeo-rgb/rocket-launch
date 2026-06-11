@@ -487,52 +487,105 @@
       return pills.length ? `<div class="detail-grid">${pills.join('')}</div>` : '';
     }
 
-    async function loadLaunches() {
+    async function loadLaunches(forceRefresh = false) {
       const content = document.getElementById('content');
+      const CACHE_KEY = 'll2_launches';
+      const CACHE_TTL = 25 * 60 * 1000; // 25 min
+
+      // Use sessionStorage cache to avoid hammering the API on every page load
+      if (!forceRefresh) {
+        try {
+          const cached = sessionStorage.getItem(CACHE_KEY);
+          if (cached) {
+            const { ts, upData, prevData } = JSON.parse(cached);
+            if (Date.now() - ts < CACHE_TTL) {
+              renderLaunches(upData, prevData);
+              return;
+            }
+          }
+        } catch(e) {}
+      }
+
       content.innerHTML = `<div class="state-box"><i class="ti ti-loader spin" aria-hidden="true"></i><p>Loading launches…</p></div>`;
       if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
 
       try {
-        // Fetch a larger upcoming window so we can split past vs future,
-        // plus the previous endpoint for the most recent completed launch
-        const [upRes, prevRes] = await Promise.all([
-          fetch('https://ll.thespacedevs.com/2.0.0/launch/upcoming/?limit=15&mode=detailed&ordering=net'),
-          fetch('https://ll.thespacedevs.com/2.0.0/launch/previous/?limit=1&mode=detailed&ordering=-net')
-        ]);
-        if (!upRes.ok)   throw new Error(`Upcoming HTTP ${upRes.status}`);
+        // Single request first — upcoming with enough results
+        const upRes = await fetch('https://ll.thespacedevs.com/2.0.0/launch/upcoming/?limit=15&mode=detailed&ordering=net');
 
-        const upData   = await upRes.json();
-        const prevData = prevRes.ok ? await prevRes.json() : { results: [] };
-
-        const now = Date.now();
-        const all = upData.results || [];
-
-        // Split: future = NET in the future OR status not yet terminal
-        // Past-in-upcoming = NET already passed AND status is Success/Failure
-        const TERMINAL = new Set([3, 4, 7]); // Success, Failure, Partial failure
-        const future = all.filter(l => new Date(l.net).getTime() > now || !TERMINAL.has(l.status?.id));
-        const pastInUp = all.filter(l => new Date(l.net).getTime() <= now && TERMINAL.has(l.status?.id));
-
-        // Use dedicated previous endpoint first, fall back to what slipped into upcoming
-        const prevList = (prevData.results || []).length ? prevData.results : pastInUp.slice(-1);
-        const launches = future;
-
-        if (!launches.length) {
-          content.innerHTML = `<div class="state-box"><i class="ti ti-calendar-off" aria-hidden="true"></i><p>No upcoming launches found.</p></div>`;
+        if (upRes.status === 429) {
+          const retry = upRes.headers.get('Retry-After') || 60;
+          content.innerHTML = `
+            <div class="state-box">
+              <i class="ti ti-clock" aria-hidden="true"></i>
+              <p>API rate limit reached.</p>
+              <small>Retrying in ${retry}s — launch data refreshes every 30 min.</small>
+            </div>`;
+          setTimeout(() => loadLaunches(true), parseInt(retry) * 1000);
           return;
         }
+        if (!upRes.ok) throw new Error(`HTTP ${upRes.status}`);
 
-        const first = launches[0];
-        const rest  = launches.slice(1);
-        const prev  = prevList[0] || null;
-        const s0    = STATUS_MAP[first.status?.id] || { label: first.status?.name || 'TBD', cls: 'tgo' };
+        const upData = await upRes.json();
 
-        nextLaunchMs = new Date(first.net).getTime();
+        // Try previous endpoint separately — if it 429s, skip it gracefully
+        let prevData = { results: [] };
+        try {
+          const prevRes = await fetch('https://ll.thespacedevs.com/2.0.0/launch/previous/?limit=1&mode=detailed&ordering=-net');
+          if (prevRes.ok) prevData = await prevRes.json();
+        } catch(e) {}
 
-        const agency  = esc(first.launch_service_provider?.name || '');
-        const rocket  = esc(first.rocket?.configuration?.name   || '');
-        const mission = esc(first.mission?.name || '');
-        const desc    = esc(first.mission?.description || '');
+        // Cache the results
+        try {
+          sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), upData, prevData }));
+        } catch(e) {}
+
+        renderLaunches(upData, prevData);
+
+      } catch (err) {
+        content.innerHTML = `
+          <div class="state-box">
+            <i class="ti ti-wifi-off" aria-hidden="true"></i>
+            <p>Could not load launch data.</p>
+            <small>${esc(err.message)}</small>
+            <br>
+            <button class="refresh-btn" onclick="loadLaunches(true)" style="margin: 10px auto 0">
+              <i class="ti ti-refresh" aria-hidden="true"></i> Retry
+            </button>
+          </div>`;
+      }
+    }
+
+    function renderLaunches(upData, prevData) {
+      const content = document.getElementById('content');
+      if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+
+      const now = Date.now();
+      const all = upData.results || [];
+
+      const TERMINAL = new Set([3, 4, 7]);
+      const future   = all.filter(l => new Date(l.net).getTime() > now || !TERMINAL.has(l.status?.id));
+      const pastInUp = all.filter(l => new Date(l.net).getTime() <= now && TERMINAL.has(l.status?.id));
+
+      const prevList = (prevData.results || []).length ? prevData.results : pastInUp.slice(-1);
+      const launches = future;
+
+      if (!launches.length) {
+        content.innerHTML = `<div class="state-box"><i class="ti ti-calendar-off" aria-hidden="true"></i><p>No upcoming launches found.</p></div>`;
+        return;
+      }
+
+      const first = launches[0];
+      const rest  = launches.slice(1);
+      const prev  = prevList[0] || null;
+      const s0    = STATUS_MAP[first.status?.id] || { label: first.status?.name || 'TBD', cls: 'tgo' };
+
+      nextLaunchMs = new Date(first.net).getTime();
+
+      const agency  = esc(first.launch_service_provider?.name || '');
+      const rocket  = esc(first.rocket?.configuration?.name   || '');
+      const mission = esc(first.mission?.name || '');
+      const desc    = esc(first.mission?.description || '');
 
         // ── Next launch card ──
         let html = `
@@ -616,23 +669,10 @@
 
         document.getElementById('updated-time').textContent =
           'Updated ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
-      } catch (err) {
-        content.innerHTML = `
-          <div class="state-box">
-            <i class="ti ti-wifi-off" aria-hidden="true"></i>
-            <p>Could not load launch data.</p>
-            <small>${esc(err.message)}</small>
-            <br>
-            <button class="refresh-btn" onclick="loadLaunches()" style="margin: 10px auto 0">
-              <i class="ti ti-refresh" aria-hidden="true"></i> Retry
-            </button>
-          </div>`;
-      }
     }
 
     loadLaunches();
-    setInterval(loadLaunches, 5 * 60 * 1000);
+    setInterval(loadLaunches, 30 * 60 * 1000); // 30 min — LL2 free tier is strict
   </script>
 </body>
 </html>
