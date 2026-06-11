@@ -296,28 +296,7 @@
       </div>`;
     }
 
-    // ── Previous launch ──
-    if (prev) {
-      const st  = rlStatus(prev);
-      const t0  = prev.t0||prev.win_open;
-      const dt  = t0 ? formatDate(t0) : null;
-      const ag  = esc(prev.provider?.name||'');
-      const rk  = esc(prev.vehicle?.name||'');
-      const mis = esc(prev.missions?.[0]?.name||'');
-      const dsc = esc(prev.launch_description||prev.missions?.[0]?.description||'');
-      html += `<div class="prev-card">
-        <div class="prev-eyebrow"><i class="ti ti-clock-check"></i>Previous launch${t0?' · '+timeAgo(t0):''}</div>
-        <div class="prev-name">${esc(prev.name)}</div>
-        <div class="prev-sub">${[ag,rk].filter(Boolean).join(' · ')}</div>
-        ${dt?`<div class="prev-when">${dt.full}</div>`:''}
-        <div class="meta-row" style="margin-top:10px">
-          <div class="meta-chip"><span class="status-pip pip-${st.cls}"></span>${st.label}</div>
-          ${mis&&mis!==esc(prev.name)?`<div class="meta-chip"><i class="ti ti-satellite"></i>${mis}</div>`:''}
-        </div>
-        ${buildPills(prev)}
-        ${dsc?`<div class="mission-desc">${dsc}</div>`:''}
-      </div>`;
-    }
+
 
     // ── Upcoming list ──
     if (rest.length) {
