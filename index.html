@@ -293,6 +293,86 @@
     .badge-tgo  { background: var(--bg-card2); color: var(--text-tertiary); }
     .badge-success { background: var(--go-dim); color: var(--go); }
 
+    /* ---- Mission description ---- */
+    .mission-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 0.5px solid var(--border);
+    }
+
+    /* ---- Detail grid (orbit, type) ---- */
+    .detail-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .detail-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      background: var(--bg-card2);
+      border: 0.5px solid var(--border);
+      border-radius: 20px;
+      padding: 3px 10px;
+    }
+    .detail-pill i { font-size: 14px; }
+    .detail-pill strong { color: var(--text-primary); font-weight: 500; }
+
+    /* ---- Previous launch card ---- */
+    .prev-card {
+      background: var(--bg-card);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 14px;
+      position: relative;
+    }
+    .prev-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      background: var(--go);
+      opacity: 0.5;
+    }
+    .prev-eyebrow {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--go);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .prev-name {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.3;
+      margin-bottom: 3px;
+      letter-spacing: -0.01em;
+    }
+    .prev-sub {
+      font-size: 15px;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+    .prev-when {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--text-tertiary);
+      margin-bottom: 2px;
+    }
+
     /* ---- States ---- */
     .state-box {
       text-align: center;
@@ -361,7 +441,7 @@
       const hrs  = Math.floor((safe % 86400000) / 3600000);
       const min  = Math.floor((safe % 3600000) / 60000);
       const sec  = Math.floor((safe % 60000) / 1000);
-      const get = id => document.getElementById(id);
+      const get  = id => document.getElementById(id);
       if (get('cd-days')) get('cd-days').textContent = pad(days);
       if (get('cd-hrs'))  get('cd-hrs').textContent  = pad(hrs);
       if (get('cd-min'))  get('cd-min').textContent  = pad(min);
@@ -371,10 +451,21 @@
     function formatDate(isoStr) {
       const d = new Date(isoStr);
       return {
-        day: d.getUTCDate(),
-        mon: d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' }),
-        time: d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC', hour12: false }) + ' UTC'
+        day:  d.getUTCDate(),
+        mon:  d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' }),
+        time: d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC', hour12: false }) + ' UTC',
+        full: d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
       };
+    }
+
+    function timeAgo(isoStr) {
+      const diff = Date.now() - new Date(isoStr).getTime();
+      const days = Math.floor(diff / 86400000);
+      if (days === 0) return 'Today';
+      if (days === 1) return 'Yesterday';
+      if (days < 30)  return `${days} days ago`;
+      const months = Math.floor(days / 30);
+      return months === 1 ? '1 month ago' : `${months} months ago`;
     }
 
     function esc(str) {
@@ -383,16 +474,38 @@
         .replace(/"/g,'&quot;');
     }
 
+    function buildDetailPills(launch) {
+      const orbit   = launch.mission?.orbit?.name;
+      const type    = launch.mission?.type;
+      const pad     = launch.pad?.location?.name || launch.pad?.name;
+      const country = launch.pad?.location?.country_code;
+      const reused  = launch.rocket?.spacecraft_stage?.landing?.attempt;
+      const pills   = [];
+      if (pad)   pills.push(`<div class="detail-pill"><i class="ti ti-map-pin" aria-hidden="true"></i>${esc(pad)}</div>`);
+      if (orbit) pills.push(`<div class="detail-pill"><i class="ti ti-circle-dashed" aria-hidden="true"></i><strong>Orbit:</strong> ${esc(orbit)}</div>`);
+      if (type)  pills.push(`<div class="detail-pill"><i class="ti ti-tag" aria-hidden="true"></i>${esc(type)}</div>`);
+      return pills.length ? `<div class="detail-grid">${pills.join('')}</div>` : '';
+    }
+
     async function loadLaunches() {
       const content = document.getElementById('content');
       content.innerHTML = `<div class="state-box"><i class="ti ti-loader spin" aria-hidden="true"></i><p>Loading launches…</p></div>`;
       if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
 
       try {
-        const res = await fetch('https://ll.thespacedevs.com/2.0.0/launch/upcoming/?limit=10&mode=list&ordering=net');
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        const launches = data.results || [];
+        // Fetch upcoming (detail mode) + previous in parallel
+        const [upRes, prevRes] = await Promise.all([
+          fetch('https://ll.thespacedevs.com/2.0.0/launch/upcoming/?limit=10&mode=detailed&ordering=net'),
+          fetch('https://ll.thespacedevs.com/2.0.0/launch/previous/?limit=1&mode=detailed&ordering=-net')
+        ]);
+        if (!upRes.ok)   throw new Error(`Upcoming HTTP ${upRes.status}`);
+        if (!prevRes.ok) throw new Error(`Previous HTTP ${prevRes.status}`);
+
+        const upData   = await upRes.json();
+        const prevData = await prevRes.json();
+
+        const launches = upData.results   || [];
+        const prevList = prevData.results || [];
 
         if (!launches.length) {
           content.innerHTML = `<div class="state-box"><i class="ti ti-calendar-off" aria-hidden="true"></i><p>No upcoming launches found.</p></div>`;
@@ -401,15 +514,17 @@
 
         const first = launches[0];
         const rest  = launches.slice(1);
-        const s0 = STATUS_MAP[first.status?.id] || { label: first.status?.name || 'TBD', cls: 'tgo' };
+        const prev  = prevList[0] || null;
+        const s0    = STATUS_MAP[first.status?.id] || { label: first.status?.name || 'TBD', cls: 'tgo' };
 
         nextLaunchMs = new Date(first.net).getTime();
 
         const agency  = esc(first.launch_service_provider?.name || '');
-        const rocket  = esc(first.rocket?.configuration?.name || '');
-        const padName = esc(first.pad?.location?.name || first.pad?.name || '');
+        const rocket  = esc(first.rocket?.configuration?.name   || '');
         const mission = esc(first.mission?.name || '');
+        const desc    = esc(first.mission?.description || '');
 
+        // ── Next launch card ──
         let html = `
           <div class="next-card" role="region" aria-label="Next launch">
             <div class="next-eyebrow">Next launch</div>
@@ -425,22 +540,46 @@
               <div class="cd-unit"><div class="cd-num" id="cd-sec">--</div><div class="cd-label">sec</div></div>
             </div>
             <div class="meta-row">
-              <div class="meta-chip">
-                <span class="status-pip pip-${s0.cls}" aria-hidden="true"></span>
-                ${s0.label}
-              </div>
-              ${padName ? `<div class="meta-chip"><i class="ti ti-map-pin" aria-hidden="true"></i>${padName}</div>` : ''}
+              <div class="meta-chip"><span class="status-pip pip-${s0.cls}" aria-hidden="true"></span>${s0.label}</div>
               ${mission ? `<div class="meta-chip"><i class="ti ti-satellite" aria-hidden="true"></i>${mission}</div>` : ''}
             </div>
+            ${buildDetailPills(first)}
+            ${desc ? `<div class="mission-desc">${desc}</div>` : ''}
           </div>`;
 
+        // ── Previous launch card ──
+        if (prev) {
+          const ps   = STATUS_MAP[prev.status?.id] || { label: prev.status?.name || '—', cls: 'tgo' };
+          const pag  = esc(prev.launch_service_provider?.name || '');
+          const prk  = esc(prev.rocket?.configuration?.name   || '');
+          const pdt  = formatDate(prev.net);
+          const pdsc = esc(prev.mission?.description || '');
+          html += `
+          <div class="prev-card" role="region" aria-label="Previous launch">
+            <div class="prev-eyebrow">
+              <i class="ti ti-clock-check" aria-hidden="true"></i>
+              Previous launch · ${timeAgo(prev.net)}
+            </div>
+            <div class="prev-name">${esc(prev.name)}</div>
+            <div class="prev-sub">${[pag, prk].filter(Boolean).join(' · ')}</div>
+            <div class="prev-when">${pdt.full}</div>
+            <div class="meta-row" style="margin-top:10px">
+              <div class="meta-chip"><span class="status-pip pip-${ps.cls}" aria-hidden="true"></span>${ps.label}</div>
+              ${prev.mission?.name ? `<div class="meta-chip"><i class="ti ti-satellite" aria-hidden="true"></i>${esc(prev.mission.name)}</div>` : ''}
+            </div>
+            ${buildDetailPills(prev)}
+            ${pdsc ? `<div class="mission-desc">${pdsc}</div>` : ''}
+          </div>`;
+        }
+
+        // ── Upcoming list ──
         if (rest.length) {
           html += `<div class="section-label">Upcoming</div><div class="launch-list">`;
           rest.forEach(l => {
             const dt  = formatDate(l.net);
             const st  = STATUS_MAP[l.status?.id] || { label: 'TBD', cls: 'tgo' };
             const ag  = esc(l.launch_service_provider?.name || '');
-            const rk  = esc(l.rocket?.configuration?.name || '');
+            const rk  = esc(l.rocket?.configuration?.name   || '');
             const tbd = l.tbdtime;
             html += `
               <div class="launch-row">
